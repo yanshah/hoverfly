@@ -1,0 +1,10 @@
+hoverfly.host: ""
+hoverfly.admin.port: "8888"
+hoverfly.proxy.port: "8500"
+hoverfly.db.type: memory
+hoverfly.username: "admin"
+hoverfly.password: "pass"
+hoverfly.webserver: false
+hoverfly.tls.certificate: ""
+hoverfly.tls.key: ""
+hoverfly.tls.disable: false
