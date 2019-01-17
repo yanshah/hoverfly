@@ -1,0 +1,4 @@
+hoverfly:
+  destination: "https://mswebservices-int.infratotal.net"
+  user: admin
+  password: password
