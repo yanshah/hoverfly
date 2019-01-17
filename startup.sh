@@ -8,7 +8,31 @@ HOVERFLY_JSON=${HOVERFLY_JSON:-simulation.json}
 HOVERFLY_JSON_PATH="/hoverfly/output/$HOVERFLY_JSON"
 CUSTOM_SCRIPT=${CUSTOM_SCRIPT:-none}
 CUSTOM_SCRIPT_PATH=/hoverfly/script/${CUSTOM_SCRIPT:-none}
-HOVERFLY_AUTH=${HOVERFLY_AUTH:-true}
+HOVERFLY_AUTH=${HOVERFLY_AUTH:-1}
+# Parsing config.yml
+function parse_yaml {
+   local prefix=$2
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   sed -ne "s|^\($s\):|\1|" \
+        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+}
+eval $(parse_yaml /hoverfly/config.yml)
+
+echo "\"$hoverfly_destination\""
+echo $hoverfly_user
+echo $hoverfly_password
+
+#/hoverfly/hoverfly -add -username $hoverfly_user -password $hoverfly_password
 
 if [ -z "$HOVERFLY_MODE" ] || [[ ! "$HOVERFLY_MODE" =~ ^(capture|simulate)$ ]]; then
   echo "You provided the wrong value for HOVERFLY_MODE, valid values are:"
@@ -46,6 +70,7 @@ function gracefulShutdown {
 # trigger function on SIGTERM (aka graceful shutdown)
 trap gracefulShutdown SIGTERM
 
+#add user pass
 
 if [ "$HOVERFLY_MODE" == "capture" ]; then
     echo "starting hoverfly"
@@ -60,6 +85,11 @@ else
     echo "hoverfly in simulation mode"
 fi
 
+
+  /hoverfly/hoverctl destination $hoverfly_destination 
+  
+
+
 if [ "$CUSTOM_SCRIPT" == "none" ]; then
   # https://medium.com/@gchudnov/trapping-signals-in-docker-containers-7a57fdda7d86
   while true; do
@@ -70,3 +100,6 @@ else
   $CUSTOM_SCRIPT_PATH
   gracefulShutdown
 fi
+
+
+

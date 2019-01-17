@@ -1,0 +1,4 @@
+hoverfly:
+  destination: "mswebservices-int.infratotal.net/monetique"
+  user: admin
+  password: password

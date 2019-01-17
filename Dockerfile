@@ -18,11 +18,11 @@ VOLUME /hoverfly/output /hoverfly/script
 
 RUN curl -L https://github.com/SpectoLabs/hoverfly/releases/download/${HOVERFLY_VERSION}/hoverfly_bundle_linux_amd64.zip -o /hoverfly/hoverfly.zip \
   && unzip /hoverfly/hoverfly.zip
-
+COPY  config.yml /hoverfly/config.yml
 COPY startup.sh /hoverfly/startup.sh
 RUN chmod 755  /hoverfly/startup.sh
-COPY startup.sh /hoverfly/config.yaml
-RUN chmod 755  /hoverfly/config.yaml
+
+
 
 # run the script to start the app
 CMD [ "/hoverfly/startup.sh" ]
